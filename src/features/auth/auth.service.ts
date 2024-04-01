@@ -3,6 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
   UnprocessableEntityException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserSchema } from '../../models/user/UserSchema';
@@ -22,6 +23,12 @@ export class AuthService {
   async create(payload: CreateUserPayload): Promise<string> {
     if (!isCreateUserPayload(payload)) {
       throw new UnprocessableEntityException();
+    }
+
+    const existingUser = await this.userModel.findOne({ email: payload.email });
+
+    if (!!existingUser) {
+      throw new ConflictException();
     }
 
     const user = new this.userModel({
@@ -50,5 +57,9 @@ export class AuthService {
 
     const obj = { sub: user.id, email: user.email };
     return await this.jwtService.signAsync(obj);
+  }
+
+  async getProfile(id: string): Promise<User> {
+    return this.userModel.findOne({ id: id });
   }
 }
