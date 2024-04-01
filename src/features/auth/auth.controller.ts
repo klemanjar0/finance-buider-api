@@ -41,6 +41,10 @@ export class AuthController {
     type: String,
   })
   @ApiResponse({
+    status: 409,
+    description: 'User with provided name already exists.',
+  })
+  @ApiResponse({
     status: 422,
     description: 'Request body is not full.',
   })
