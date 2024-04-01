@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../user/UserSchema';
+import { ApiProperty } from '@nestjs/swagger';
 
 export type AccountDocument = mongoose.HydratedDocument<Account>;
 
@@ -9,18 +10,25 @@ export class Account {
   @Prop({ required: true })
   id: mongoose.Schema.Types.UUID;
 
+  @ApiProperty({ example: 'Main', description: 'Account Name' })
   @Prop({ required: true })
   name: string;
 
+  @ApiProperty({ example: 'My Savings', description: 'Account Description' })
   @Prop()
   description: string;
 
+  @ApiProperty({
+    description: 'Auto-calculated field, depending on transactions',
+  })
   @Prop({ default: 0 })
   currentBalance: number;
 
+  @ApiProperty({ example: false, description: 'Account favorite status' })
   @Prop({ default: false })
   isFavorite: boolean;
 
+  @ApiProperty({ description: 'User key' })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 
