@@ -7,10 +7,15 @@ export type AccountDocument = mongoose.HydratedDocument<Account>;
 
 @Schema()
 export class Account {
+  @ApiProperty({
+    example: '123-qwe-asd',
+    description: 'Entity ID',
+    required: true,
+  })
   @Prop({ required: true })
   id: mongoose.Schema.Types.UUID;
 
-  @ApiProperty({ example: 'Main', description: 'Account Name' })
+  @ApiProperty({ example: 'Main', description: 'Account Name', required: true })
   @Prop({ required: true })
   name: string;
 
