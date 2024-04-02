@@ -84,7 +84,7 @@ export class AccountController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Returns accounts list.',
+    description: 'Returns modified account.',
     type: Account,
   })
   @ApiResponse({
