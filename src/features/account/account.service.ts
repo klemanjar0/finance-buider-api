@@ -99,7 +99,7 @@ export class AccountService {
     return account.toJSON();
   }
 
-  async toggleFavorite(payload: string): Promise<void> {
+  async toggleFavorite(payload: string): Promise<{ status: boolean }> {
     const account = await this.accountModel.findOne({ id: payload });
 
     if (!account) {
@@ -109,6 +109,20 @@ export class AccountService {
     const prevValue = account.isFavorite;
 
     account.isFavorite = !prevValue;
+
+    await account.save();
+
+    return { status: account.isFavorite };
+  }
+
+  async setAccountCurrentBalance(id: string, payload: number): Promise<void> {
+    const account = await this.accountModel.findOne({ id: id });
+
+    if (!account) {
+      throw new NotFoundException();
+    }
+
+    account.currentBalance = payload;
 
     await account.save();
   }

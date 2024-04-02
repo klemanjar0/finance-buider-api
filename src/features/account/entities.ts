@@ -31,6 +31,11 @@ export class GetAccountsDto implements IPageable {
 
 export class UpdateAccountDto extends Account {}
 
+export class ToggleFavoriteAccountDto {
+  @ApiProperty()
+  status: boolean;
+}
+
 export class GetAccountsResponseDto {
   @ApiProperty({ description: 'Accounts array', type: () => [Account] })
   data: Account[];

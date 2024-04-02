@@ -22,6 +22,7 @@ import {
   CreateAccountDto,
   GetAccountsDto,
   GetAccountsResponseDto,
+  ToggleFavoriteAccountDto,
   UpdateAccountDto,
 } from './entities';
 import { Account } from '../../models/account/AccountSchema';
@@ -100,5 +101,23 @@ export class AccountController {
     @Param() params: { id: string },
   ) {
     return this.accountService.updateAccount(params.id, payload);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put(':id/favorite')
+  @ApiOperation({
+    summary: 'Toggle favorite account.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns favorite status.',
+    type: ToggleFavoriteAccountDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Entity with provided id is not found.',
+  })
+  toggleFavoriteAccount(@Param() params: { id: string }) {
+    return this.accountService.toggleFavorite(params.id);
   }
 }
