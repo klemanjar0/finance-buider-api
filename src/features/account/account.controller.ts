@@ -8,6 +8,7 @@ import {
   Query,
   Put,
   Param,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -119,5 +120,23 @@ export class AccountController {
   })
   toggleFavoriteAccount(@Param() params: { id: string }) {
     return this.accountService.toggleFavorite(params.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete account.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns removed entity.',
+    type: ToggleFavoriteAccountDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Entity with provided id is not found.',
+  })
+  deleteAccount(@Param() params: { id: string }) {
+    return this.accountService.deleteAccount(params.id);
   }
 }

@@ -115,6 +115,16 @@ export class AccountService {
     return { status: account.isFavorite };
   }
 
+  async deleteAccount(payload: string): Promise<Account> {
+    const account = await this.accountModel.findOne({ id: payload });
+
+    if (!account) {
+      throw new NotFoundException();
+    }
+
+    return this.accountModel.findOneAndDelete({ id: payload });
+  }
+
   async setAccountCurrentBalance(id: string, payload: number): Promise<void> {
     const account = await this.accountModel.findOne({ id: id });
 

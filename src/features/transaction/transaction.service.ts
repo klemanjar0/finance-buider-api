@@ -12,4 +12,6 @@ export class TransactionService {
     @InjectModel(Account.name) private accountModel: Model<Account>,
     @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
   ) {}
+
+  async create() {}
 }
