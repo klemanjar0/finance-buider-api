@@ -24,6 +24,7 @@ export class Account {
   description: string;
 
   @ApiProperty({
+    example: 123.45,
     description: 'Auto-calculated field, depending on transactions',
   })
   @Prop({ default: 0 })
@@ -33,7 +34,11 @@ export class Account {
   @Prop({ default: false })
   isFavorite: boolean;
 
-  @ApiProperty({ description: 'User key', required: true })
+  @ApiProperty({
+    example: '6asd6ahshiudh',
+    description: 'User key',
+    required: true,
+  })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 

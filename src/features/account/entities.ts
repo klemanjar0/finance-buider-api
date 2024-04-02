@@ -1,4 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IPageable,
+  IPageableCount,
+  IPageableDto,
+  IPageableResponse,
+  PageableCountDto,
+} from '../../utils/common/types';
+import { Account } from '../../models/account/AccountSchema';
 
 export interface CreateAccountPayload {
   name: string;
@@ -13,6 +21,22 @@ export class CreateAccountDto implements CreateAccountPayload {
   description: string;
 }
 
+export class GetAccountsDto implements IPageable {
+  @ApiProperty()
+  limit: number;
+
+  @ApiProperty()
+  offset: number;
+}
+
+export class GetAccountsResponseDto {
+  @ApiProperty({ description: 'Accounts array', type: () => [Account] })
+  data: Account[];
+
+  @ApiProperty()
+  pageable: PageableCountDto;
+}
+
 export const isCreateAccountPayload = (
   payload: any,
 ): payload is CreateAccountPayload => {
@@ -23,3 +47,5 @@ export const isCreateAccountPayload = (
     typeof payload.description == 'string'
   );
 };
+
+export type GetAccountsOptions = IPageable;

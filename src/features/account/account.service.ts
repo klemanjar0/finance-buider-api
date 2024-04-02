@@ -9,8 +9,15 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from '../../models/account/AccountSchema';
-import { CreateAccountPayload, isCreateAccountPayload } from './entities';
+import {
+  CreateAccountPayload,
+  GetAccountsOptions,
+  isCreateAccountPayload,
+} from './entities';
 import { User } from '../../models/user/UserSchema';
+import { IPageableResponse } from '../../utils/common/types';
+import { buildPageable } from '../../utils/utility';
+import { of } from 'rxjs';
 
 @Injectable()
 export class AccountService {
@@ -41,6 +48,26 @@ export class AccountService {
     await account.save();
 
     return account.toJSON();
+  }
+
+  async getAccounts(
+    userId: string,
+    options: GetAccountsOptions,
+  ): Promise<IPageableResponse<Account>> {
+    const { limit, offset } = options;
+    const user = await this.userModel.findOne({ id: userId });
+    const accountsCount = await this.accountModel
+      .find({ user: user._id })
+      .countDocuments();
+    const accounts = await this.accountModel
+      .find({ user: user._id })
+      .skip(offset)
+      .limit(limit);
+
+    return {
+      data: accounts,
+      pageable: buildPageable({ limit, offset, total: accountsCount }),
+    };
   }
 
   async updateAccount(id: string, payload: Partial<Account>): Promise<Account> {

@@ -5,44 +5,41 @@ import {
   Post,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiOperation,
   ApiProperty,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AccountService } from './account.service';
-import { CreateAccountDto } from './entities';
+import {
+  CreateAccountDto,
+  GetAccountsDto,
+  GetAccountsResponseDto,
+} from './entities';
 import { Account } from '../../models/account/AccountSchema';
 import { AuthGuard } from '../auth/auth.guard';
-import { getUserIdFromRequest } from '../../utils/utility';
-import * as express from 'express';
+import { extractPageable, getUserIdFromRequest } from '../../utils/utility';
+import { IPageableDto } from '../../utils/common/types';
 
 @ApiTags('Account')
-@Controller('account')
+@Controller('accounts')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @UseGuards(AuthGuard)
-  @Post('create')
-  @ApiBody({
-    type: CreateAccountDto,
-    examples: {
-      Account: {
-        description: 'Blank account schema',
-        value: { name: 'My Account', description: 'Keep savings here' },
-      },
-    },
-  })
+  @Post('')
   @ApiOperation({
     summary: 'Create a new account for the current user.',
   })
   @ApiResponse({
     status: 200,
     description: 'Returns created account.',
-    type: String,
+    type: Account,
   })
   @ApiResponse({
     status: 422,
@@ -54,5 +51,30 @@ export class AccountController {
   ): Promise<Account> {
     const userId = getUserIdFromRequest(req);
     return this.accountService.create(userId, payload);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('')
+  @ApiQuery({ name: 'limit', type: String })
+  @ApiQuery({ name: 'offset', type: String })
+  @ApiOperation({
+    summary: 'Get current user accounts.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns accounts list.',
+    type: GetAccountsResponseDto,
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'Request body is not full.',
+  })
+  getAccounts(
+    @Request() req: Request,
+    @Query() payload: GetAccountsDto,
+  ): Promise<GetAccountsResponseDto> {
+    const userId = getUserIdFromRequest(req);
+    const pageable = extractPageable(payload);
+    return this.accountService.getAccounts(userId, pageable);
   }
 }
