@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
-import { getJWTSeed } from '../../utils/common/constants';
+import { getJWTLifetime, getJWTSeed } from '../../utils/common/constants';
 import { User, UserSchema } from '../../models/user/UserSchema';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -12,7 +12,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     JwtModule.register({
       global: true,
       secret: getJWTSeed(),
-      signOptions: { expiresIn: '15m' },
+      signOptions: { expiresIn: getJWTLifetime() },
     }),
   ],
   providers: [AuthService],
