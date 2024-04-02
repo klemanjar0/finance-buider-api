@@ -6,6 +6,8 @@ import {
   UseGuards,
   Request,
   Query,
+  Put,
+  Param,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -20,6 +22,7 @@ import {
   CreateAccountDto,
   GetAccountsDto,
   GetAccountsResponseDto,
+  UpdateAccountDto,
 } from './entities';
 import { Account } from '../../models/account/AccountSchema';
 import { AuthGuard } from '../auth/auth.guard';
@@ -65,10 +68,6 @@ export class AccountController {
     description: 'Returns accounts list.',
     type: GetAccountsResponseDto,
   })
-  @ApiResponse({
-    status: 422,
-    description: 'Request body is not full.',
-  })
   getAccounts(
     @Request() req: Request,
     @Query() payload: GetAccountsDto,
@@ -76,5 +75,30 @@ export class AccountController {
     const userId = getUserIdFromRequest(req);
     const pageable = extractPageable(payload);
     return this.accountService.getAccounts(userId, pageable);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Update account.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns accounts list.',
+    type: Account,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Entity with provided id is not found.',
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'Request body is not full.',
+  })
+  updateAccount(
+    @Body() payload: UpdateAccountDto,
+    @Param() params: { id: string },
+  ) {
+    return this.accountService.updateAccount(params.id, payload);
   }
 }

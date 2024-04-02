@@ -7,6 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as uuid from 'uuid';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from '../../models/account/AccountSchema';
 import {
@@ -17,7 +18,6 @@ import {
 import { User } from '../../models/user/UserSchema';
 import { IPageableResponse } from '../../utils/common/types';
 import { buildPageable } from '../../utils/utility';
-import { of } from 'rxjs';
 
 @Injectable()
 export class AccountService {
@@ -78,6 +78,10 @@ export class AccountService {
     ];
 
     const account = await this.accountModel.findOne({ id: id });
+
+    if (!account) {
+      throw new NotFoundException();
+    }
 
     modifiableFields.forEach((fieldName: keyof Account) => {
       if (

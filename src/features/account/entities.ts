@@ -29,6 +29,8 @@ export class GetAccountsDto implements IPageable {
   offset: number;
 }
 
+export class UpdateAccountDto extends Account {}
+
 export class GetAccountsResponseDto {
   @ApiProperty({ description: 'Accounts array', type: () => [Account] })
   data: Account[];

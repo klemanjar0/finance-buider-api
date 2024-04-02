@@ -1,5 +1,6 @@
 import { get } from 'lodash';
 import { IPageable, IPageableCount } from './common/types';
+import * as uuid from 'uuid';
 
 export const getUserIdFromRequest = (req: any) => {
   return get(req, ['user', 'sub'], '');
