@@ -33,13 +33,15 @@ export class Account {
   @Prop({ default: false })
   isFavorite: boolean;
 
-  @ApiProperty({ description: 'User key' })
+  @ApiProperty({ description: 'User key', required: true })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 
+  @ApiProperty()
   @Prop()
   createdAt: mongoose.Schema.Types.Date;
 
+  @ApiProperty()
   @Prop()
   updatedAt: mongoose.Schema.Types.Date;
 }
