@@ -42,3 +42,14 @@ export class PageableCountDto implements IPageableCount {
   @ApiProperty()
   offset: number;
 }
+
+export class DeleteResultDto {
+  @ApiProperty({
+    description:
+      'Indicates whether this write result was acknowledged. If not, then all other members of this result will be undefined.',
+  })
+  acknowledged: boolean;
+
+  @ApiProperty({ description: 'The number of documents that were deleted' })
+  deletedCount: number;
+}

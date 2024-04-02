@@ -8,18 +8,21 @@ import {
   Transaction,
   TransactionSchema,
 } from '../../models/transaction/TransactionSchema';
+import { AccountService } from '../account/account.service';
 import { AccountModule } from '../account/account.module';
 
 @Module({
   imports: [
-    AccountModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Account.name, schema: AccountSchema }]),
     MongooseModule.forFeature([
       { name: Transaction.name, schema: TransactionSchema },
     ]),
   ],
-  providers: [TransactionService],
+  providers: [TransactionService, AccountService],
   controllers: [TransactionController],
+  exports: [TransactionService],
 })
-export class TransactionModule {}
+export class TransactionModule {
+  constructor(private accountService: AccountService) {}
+}

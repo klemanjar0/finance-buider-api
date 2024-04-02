@@ -11,6 +11,7 @@ import { Transaction } from '../../models/transaction/TransactionSchema';
 import { CreateTransactionPayload } from './entities';
 import { v4 as uuidv4 } from 'uuid';
 import { AccountService } from '../account/account.service';
+import { DeleteResult } from 'mongodb';
 
 @Injectable()
 export class TransactionService {
@@ -70,5 +71,9 @@ export class TransactionService {
     );
 
     return transaction.toJSON();
+  }
+
+  async deleteById(id: string): Promise<DeleteResult> {
+    return this.transactionModel.deleteOne({ id });
   }
 }

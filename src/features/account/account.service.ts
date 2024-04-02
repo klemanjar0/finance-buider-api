@@ -18,12 +18,14 @@ import {
 import { User } from '../../models/user/UserSchema';
 import { IPageableResponse } from '../../utils/common/types';
 import { buildPageable } from '../../utils/utility';
+import { Transaction } from '../../models/transaction/TransactionSchema';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Account.name) private accountModel: Model<Account>,
+    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
   ) {}
 
   async create(
@@ -122,7 +124,21 @@ export class AccountService {
       throw new NotFoundException();
     }
 
+    await this.transactionModel.deleteMany({
+      account: account._id,
+    });
+
     return this.accountModel.findOneAndDelete({ id: payload });
+  }
+
+  async getAccountById(payload: string): Promise<Account> {
+    const account = await this.accountModel.findOne({ id: payload });
+
+    if (!account) {
+      throw new NotFoundException();
+    }
+
+    return this.accountModel.findOne({ id: payload });
   }
 
   async setAccountCurrentBalance(id: string, payload: number): Promise<void> {
