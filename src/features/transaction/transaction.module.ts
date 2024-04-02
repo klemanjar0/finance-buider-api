@@ -8,9 +8,11 @@ import {
   Transaction,
   TransactionSchema,
 } from '../../models/transaction/TransactionSchema';
+import { AccountModule } from '../account/account.module';
 
 @Module({
   imports: [
+    AccountModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Account.name, schema: AccountSchema }]),
     MongooseModule.forFeature([

@@ -12,5 +12,6 @@ import { User, UserSchema } from '../../models/user/UserSchema';
   ],
   providers: [AccountService],
   controllers: [AccountController],
+  exports: [AccountService],
 })
 export class AccountModule {}
