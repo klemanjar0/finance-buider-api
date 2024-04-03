@@ -7,7 +7,12 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto, CreateUserPayload, SignInUserDto } from './entities';
+import {
+  CreateUserDto,
+  CreateUserPayload,
+  SignInSuccessDto,
+  SignInUserDto,
+} from './entities';
 import { AuthGuard } from './auth.guard';
 import {
   ApiBody,
@@ -38,7 +43,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Returns access token.',
-    type: String,
+    type: SignInSuccessDto,
   })
   @ApiResponse({
     status: 409,
@@ -48,7 +53,7 @@ export class AuthController {
     status: 422,
     description: 'Request body is not full.',
   })
-  register(@Body() payload: CreateUserPayload): Promise<string> {
+  register(@Body() payload: CreateUserPayload): Promise<{ authToken: string }> {
     return this.authService.create(payload);
   }
 
@@ -60,7 +65,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Returns access token.',
-    type: String,
+    type: SignInSuccessDto,
   })
   @ApiResponse({
     status: 401,
@@ -70,7 +75,7 @@ export class AuthController {
     status: 422,
     description: 'Request body is not full or user does not exist.',
   })
-  signIn(@Body() payload: CreateUserPayload): Promise<string> {
+  signIn(@Body() payload: CreateUserPayload): Promise<{ authToken: string }> {
     return this.authService.signIn(payload);
   }
 

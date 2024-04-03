@@ -20,7 +20,7 @@ export class AuthService {
   ) {}
 
   // caution! no validation yet
-  async create(payload: CreateUserPayload): Promise<string> {
+  async create(payload: CreateUserPayload): Promise<{ authToken: string }> {
     if (!isCreateUserPayload(payload)) {
       throw new UnprocessableEntityException();
     }
@@ -41,10 +41,12 @@ export class AuthService {
     await user.save();
 
     const obj = { sub: user.id, email: user.email };
-    return await this.jwtService.signAsync(obj);
+    return {
+      authToken: await this.jwtService.signAsync(obj),
+    };
   }
 
-  async signIn(payload: CreateUserPayload): Promise<string> {
+  async signIn(payload: CreateUserPayload): Promise<{ authToken: string }> {
     const user = await this.userModel.findOne({ email: payload.email });
 
     if (!isCreateUserPayload(payload) || !user) {
@@ -56,7 +58,10 @@ export class AuthService {
     }
 
     const obj = { sub: user.id, email: user.email };
-    return await this.jwtService.signAsync(obj);
+
+    return {
+      authToken: await this.jwtService.signAsync(obj),
+    };
   }
 
   async getProfile(id: string): Promise<User> {

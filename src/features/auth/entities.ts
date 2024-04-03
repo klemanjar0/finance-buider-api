@@ -16,6 +16,11 @@ export class SignInUserDto {
   password: string;
 }
 
+export class SignInSuccessDto {
+  @ApiProperty()
+  authToken: string;
+}
+
 export interface CreateUserPayload {
   email: string;
   password: string;
