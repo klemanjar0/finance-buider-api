@@ -188,10 +188,12 @@ export class AccountService {
 
     account.transactions.push(transaction);
 
-    account.save();
+    account.currentBalance = account.transactions.reduce(
+      (acc, it) => acc + it.value,
+      0,
+    );
 
-    const balance = await this.getBalanceByAccountId(accountId);
-    await this.setAccountCurrentBalance(accountId, balance);
+    await account.save();
 
     return transaction;
   }
