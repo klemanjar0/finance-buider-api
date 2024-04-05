@@ -44,7 +44,7 @@ export class Account extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => [Transaction] })
   @Prop([Transaction])
   transactions: Array<Transaction>;
 
