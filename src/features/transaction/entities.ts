@@ -1,14 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 export interface CreateTransactionPayload {
   value: number;
-  accountId: string;
+  description: string;
+  type: string;
 }
 
 export class CreateTransactionDto implements CreateTransactionPayload {
+  @IsNumber()
+  @IsNotEmpty()
   @ApiProperty()
   value: number;
 
   @ApiProperty()
-  accountId: string;
+  description: string;
+
+  @ApiProperty()
+  type: string;
 }

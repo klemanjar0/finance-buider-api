@@ -2,11 +2,13 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../user/UserSchema';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transaction } from '../transaction/TransactionSchema';
+import { Document, Types } from 'mongoose';
 
 export type AccountDocument = mongoose.HydratedDocument<Account>;
 
 @Schema()
-export class Account {
+export class Account extends Document {
   @ApiProperty({
     example: '123-qwe-asd',
     description: 'Entity ID',
@@ -41,6 +43,10 @@ export class Account {
   })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
+
+  @ApiProperty()
+  @Prop([Transaction])
+  transactions: Array<Transaction>;
 
   @ApiProperty()
   @Prop()

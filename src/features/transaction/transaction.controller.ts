@@ -21,28 +21,6 @@ export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @UseGuards(AuthGuard)
-  @Post('')
-  @ApiOperation({
-    summary: 'Create transaction on specific account.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns created transaction.',
-    type: Transaction,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Account not found.',
-  })
-  @ApiResponse({
-    status: 406,
-    description: 'Incorrect transaction value.',
-  })
-  create(@Body() payload: CreateTransactionDto): Promise<Transaction> {
-    return this.transactionService.create(payload.accountId, payload);
-  }
-
-  @UseGuards(AuthGuard)
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete transaction.',

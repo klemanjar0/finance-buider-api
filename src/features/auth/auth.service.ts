@@ -6,8 +6,12 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserSchema } from '../../models/user/UserSchema';
-import { CreateUserPayload, isCreateUserPayload } from './entities';
+import { User } from '../../models/user/UserSchema';
+import {
+  CreateUserPayload,
+  isCreateUserPayload,
+  SignInSuccessDto,
+} from './entities';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import { compareHash, makeHash } from '../../utils/common/bcrypt';
@@ -19,16 +23,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // caution! no validation yet
-  async create(payload: CreateUserPayload): Promise<{ authToken: string }> {
-    if (!isCreateUserPayload(payload)) {
-      throw new UnprocessableEntityException();
-    }
-
+  async create(payload: CreateUserPayload): Promise<SignInSuccessDto> {
     const existingUser = await this.userModel.findOne({ email: payload.email });
 
     if (!!existingUser) {
-      throw new ConflictException();
+      throw new ConflictException('User with provided name already exists.');
     }
 
     const user = new this.userModel({
@@ -43,15 +42,12 @@ export class AuthService {
     const obj = { sub: user.id, email: user.email };
     return {
       authToken: await this.jwtService.signAsync(obj),
+      username: user.email,
     };
   }
 
-  async signIn(payload: CreateUserPayload): Promise<{ authToken: string }> {
+  async signIn(payload: CreateUserPayload): Promise<SignInSuccessDto> {
     const user = await this.userModel.findOne({ email: payload.email });
-
-    if (!isCreateUserPayload(payload) || !user) {
-      throw new UnprocessableEntityException();
-    }
 
     if (await compareHash(user.password, payload.password)) {
       throw new UnauthorizedException();
@@ -61,6 +57,7 @@ export class AuthService {
 
     return {
       authToken: await this.jwtService.signAsync(obj),
+      username: user.email,
     };
   }
 

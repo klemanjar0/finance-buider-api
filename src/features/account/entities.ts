@@ -1,22 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IPageable,
-  IPageableCount,
-  IPageableDto,
-  IPageableResponse,
-  PageableCountDto,
-} from '../../utils/common/types';
+import { IPageable, PageableCountDto } from '../../utils/common/types';
 import { Account } from '../../models/account/AccountSchema';
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export interface CreateAccountPayload {
   name: string;
   description: string;
 }
 
+export class WithUuidDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  id: string;
+}
+
+export class DeleteTransactionDto extends WithUuidDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsUUID()
+  transactionId: string;
+}
+
 export class CreateAccountDto implements CreateAccountPayload {
+  @IsString()
+  @IsNotEmpty()
   @ApiProperty()
   name: string;
 
+  @IsString()
   @ApiProperty()
   description: string;
 }

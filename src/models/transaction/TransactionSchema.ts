@@ -1,15 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Account } from '../account/AccountSchema';
+import { Document } from 'mongoose';
 
 export type TransactionDocument = mongoose.HydratedDocument<Transaction>;
 
 @Schema()
-export class Transaction {
+export class Transaction extends Document {
   @ApiProperty({
     example: '123-qwe-asd',
-    description: 'Entity ID',
+    description: 'Entity ID.',
     required: true,
   })
   @Prop({ required: true })
@@ -20,27 +20,39 @@ export class Transaction {
     description: 'Transaction value.',
     required: true,
   })
-  @Prop({ default: 0 })
+  @Prop({ default: 0, required: true })
   value: number;
 
   @ApiProperty({
-    example: '6asd6ahshiudh',
-    description: 'Account key',
-    required: true,
+    example: 'Car payment',
+    description: 'Transaction description.',
   })
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Account' })
-  account: Account;
+  @Prop()
+  description: string;
+
+  @ApiProperty({
+    example: 'Groceries',
+    description: 'Transaction type.',
+  })
+  @Prop()
+  type: string;
 
   @ApiProperty()
   @Prop()
-  createdAt: mongoose.Schema.Types.Date;
+  createdAt: Date;
 
   @ApiProperty()
   @Prop()
-  updatedAt: mongoose.Schema.Types.Date;
+  updatedAt: Date;
 }
 
+export type TransactionModelType = mongoose.Model<Transaction>;
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
+
+export const TransactionModel = mongoose.model<
+  Transaction,
+  TransactionModelType
+>('Transaction', TransactionSchema);
 
 TransactionSchema.pre('updateOne', function () {
   this.set({ updatedAt: new Date() });

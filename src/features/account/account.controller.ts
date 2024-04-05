@@ -13,7 +13,6 @@ import {
 import {
   ApiBody,
   ApiOperation,
-  ApiProperty,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -21,15 +20,19 @@ import {
 import { AccountService } from './account.service';
 import {
   CreateAccountDto,
+  DeleteTransactionDto,
   GetAccountsDto,
   GetAccountsResponseDto,
   ToggleFavoriteAccountDto,
   UpdateAccountDto,
+  WithUuidDto,
 } from './entities';
 import { Account } from '../../models/account/AccountSchema';
 import { AuthGuard } from '../auth/auth.guard';
 import { extractPageable, getUserIdFromRequest } from '../../utils/utility';
-import { IPageableDto } from '../../utils/common/types';
+import { Transaction } from '../../models/transaction/TransactionSchema';
+import { CreateTransactionDto } from '../transaction/entities';
+import { DeleteResultDto } from '../../utils/common/types';
 
 @ApiTags('Account')
 @Controller('accounts')
@@ -38,6 +41,7 @@ export class AccountController {
 
   @UseGuards(AuthGuard)
   @Post('')
+  @ApiBody({ type: CreateAccountDto })
   @ApiOperation({
     summary: 'Create a new account for the current user.',
   })
@@ -45,6 +49,10 @@ export class AccountController {
     status: 200,
     description: 'Returns created account.',
     type: Account,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
   })
   @ApiResponse({
     status: 422,
@@ -90,6 +98,10 @@ export class AccountController {
     type: Account,
   })
   @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+  })
+  @ApiResponse({
     status: 404,
     description: 'Entity with provided id is not found.',
   })
@@ -99,7 +111,7 @@ export class AccountController {
   })
   updateAccount(
     @Body() payload: UpdateAccountDto,
-    @Param() params: { id: string },
+    @Param() params: WithUuidDto,
   ) {
     return this.accountService.updateAccount(params.id, payload);
   }
@@ -115,10 +127,14 @@ export class AccountController {
     type: ToggleFavoriteAccountDto,
   })
   @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+  })
+  @ApiResponse({
     status: 404,
     description: 'Entity with provided id is not found.',
   })
-  toggleFavoriteAccount(@Param() params: { id: string }) {
+  toggleFavoriteAccount(@Param() params: WithUuidDto) {
     return this.accountService.toggleFavorite(params.id);
   }
 
@@ -133,10 +149,65 @@ export class AccountController {
     type: ToggleFavoriteAccountDto,
   })
   @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+  })
+  @ApiResponse({
     status: 404,
     description: 'Entity with provided id is not found.',
   })
-  deleteAccount(@Param() params: { id: string }) {
+  deleteAccount(@Param() params: WithUuidDto) {
     return this.accountService.deleteAccount(params.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(':id/transactions')
+  @ApiBody({ type: CreateTransactionDto })
+  @ApiOperation({
+    summary: 'Create transaction.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns created entity.',
+    type: Transaction,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Entity with provided id is not found.',
+  })
+  createTransaction(
+    @Param() params: WithUuidDto,
+    @Body() body: CreateTransactionDto,
+  ) {
+    return this.accountService.createTransaction(params.id, body);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete(':id/transactions/:transactionId')
+  @ApiOperation({
+    summary: 'Delete transaction.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns delete result.',
+    type: DeleteResultDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Entity with provided id is not found.',
+  })
+  deleteTransaction(@Param() params: DeleteTransactionDto) {
+    return this.accountService.deleteTransactionById(
+      params.id,
+      params.transactionId,
+    );
   }
 }

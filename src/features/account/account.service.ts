@@ -5,6 +5,7 @@ import {
   UnprocessableEntityException,
   ConflictException,
   NotFoundException,
+  NotAcceptableException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as uuid from 'uuid';
@@ -16,16 +17,20 @@ import {
   isCreateAccountPayload,
 } from './entities';
 import { User } from '../../models/user/UserSchema';
-import { IPageableResponse } from '../../utils/common/types';
+import { DeleteResultDto, IPageableResponse } from '../../utils/common/types';
 import { buildPageable } from '../../utils/utility';
-import { Transaction } from '../../models/transaction/TransactionSchema';
+import { CreateTransactionPayload } from '../transaction/entities';
+import {
+  Transaction,
+  TransactionModel,
+} from '../../models/transaction/TransactionSchema';
+import { DeleteResult } from 'mongodb';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Account.name) private accountModel: Model<Account>,
-    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
   ) {}
 
   async create(
@@ -45,6 +50,7 @@ export class AccountService {
       createdAt: new Date(),
       currentBalance: 0,
       user: user._id,
+      transactions: [],
     });
 
     await account.save();
@@ -124,10 +130,6 @@ export class AccountService {
       throw new NotFoundException();
     }
 
-    await this.transactionModel.deleteMany({
-      account: account._id,
-    });
-
     return this.accountModel.findOneAndDelete({ id: payload });
   }
 
@@ -141,6 +143,14 @@ export class AccountService {
     return this.accountModel.findOne({ id: payload });
   }
 
+  async getBalanceByAccountId(id: string) {
+    const account = await this.accountModel.findOne({ id: id });
+
+    const accountTransactions = account.transactions;
+
+    return accountTransactions.reduce((acc, it) => it.value + acc, 0);
+  }
+
   async setAccountCurrentBalance(id: string, payload: number): Promise<void> {
     const account = await this.accountModel.findOne({ id: id });
 
@@ -151,5 +161,61 @@ export class AccountService {
     account.currentBalance = payload;
 
     await account.save();
+  }
+
+  async createTransaction(
+    accountId: string,
+    payload: CreateTransactionPayload,
+  ): Promise<Transaction> {
+    const account = await this.accountModel.findOne({ id: accountId });
+
+    if (!account) {
+      throw new NotFoundException(payload, 'Account not found.');
+    }
+
+    if (payload.value === 0 || !payload.value) {
+      throw new NotAcceptableException(payload, 'Transaction cannot be zero.');
+    }
+
+    const transaction = new TransactionModel({
+      id: uuidv4(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      value: payload.value,
+      description: payload.description,
+      type: payload.type,
+    });
+
+    account.transactions.push(transaction);
+
+    account.save();
+
+    const balance = await this.getBalanceByAccountId(accountId);
+    await this.setAccountCurrentBalance(accountId, balance);
+
+    return transaction;
+  }
+
+  async deleteTransactionById(
+    accountId: string,
+    id: string,
+  ): Promise<DeleteResultDto> {
+    const account = await this.accountModel.findOne({ id: accountId });
+
+    if (!account) {
+      throw new NotFoundException(accountId, 'Account not found.');
+    }
+
+    const idx = account.transactions.findIndex((it) => String(it.id) === id);
+
+    if (!account) {
+      throw new NotFoundException(id, 'Transaction not found.');
+    }
+
+    const result = await account.transactions[idx].deleteOne();
+
+    await account.save();
+
+    return result;
   }
 }

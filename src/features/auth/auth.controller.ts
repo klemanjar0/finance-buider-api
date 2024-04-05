@@ -21,6 +21,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { getUserIdFromRequest } from '../../utils/utility';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -49,11 +50,7 @@ export class AuthController {
     status: 409,
     description: 'User with provided name already exists.',
   })
-  @ApiResponse({
-    status: 422,
-    description: 'Request body is not full.',
-  })
-  register(@Body() payload: CreateUserPayload): Promise<{ authToken: string }> {
+  register(@Body() payload: CreateUserDto): Promise<SignInSuccessDto> {
     return this.authService.create(payload);
   }
 
@@ -75,17 +72,21 @@ export class AuthController {
     status: 422,
     description: 'Request body is not full or user does not exist.',
   })
-  signIn(@Body() payload: CreateUserPayload): Promise<{ authToken: string }> {
+  signIn(@Body() payload: SignInUserDto): Promise<SignInSuccessDto> {
     return this.authService.signIn(payload);
   }
 
   @UseGuards(AuthGuard)
-  @Get('profile')
+  @Get('check_auth')
   @ApiResponse({
     status: 200,
-    description: 'The found record',
+    description: 'The found record.',
   })
-  getProfile(@Request() req) {
-    return req.user;
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+  })
+  getProfile(@Request() req: Request) {
+    return this.authService.getProfile(getUserIdFromRequest(req));
   }
 }
