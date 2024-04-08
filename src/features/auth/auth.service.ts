@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../../models/user/UserSchema';
@@ -37,8 +38,6 @@ export class AuthService {
       password: await makeHash(payload.password),
     });
 
-    console.log(user);
-
     await user.save();
 
     const obj = { sub: user.id, email: user.email };
@@ -53,8 +52,10 @@ export class AuthService {
 
     const isPasswordMatch = await compareHash(payload.password, user.password);
 
-    if (!isPasswordMatch) {
-      throw new UnauthorizedException();
+    if (!user || !isPasswordMatch) {
+      throw new NotFoundException(
+        'oops. incorrect password or user was not found.',
+      );
     }
 
     const obj = { sub: user.id, email: user.email };

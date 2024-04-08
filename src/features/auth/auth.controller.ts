@@ -65,8 +65,8 @@ export class AuthController {
     type: SignInSuccessDto,
   })
   @ApiResponse({
-    status: 401,
-    description: 'Password is not correct.',
+    status: 404,
+    description: 'Password is not correct or user not found.',
   })
   @ApiResponse({
     status: 422,
