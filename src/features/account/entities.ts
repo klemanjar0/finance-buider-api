@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IPageable, PageableCountDto } from '../../utils/common/types';
 import { Account } from '../../models/account/AccountSchema';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 
 export interface CreateAccountPayload {
   name: string;
@@ -31,6 +31,24 @@ export class CreateAccountDto implements CreateAccountPayload {
   @IsString()
   @ApiProperty()
   description: string;
+
+  @IsNumber()
+  @ApiProperty()
+  budget: string;
+}
+
+export class UpdateAccountDto {
+  @IsString()
+  @ApiProperty()
+  name: string;
+
+  @IsString()
+  @ApiProperty()
+  description: string;
+
+  @IsNumber()
+  @ApiProperty()
+  budget: string;
 }
 
 export class GetAccountsDto implements IPageable {
@@ -40,8 +58,6 @@ export class GetAccountsDto implements IPageable {
   @ApiProperty()
   offset: number;
 }
-
-export class UpdateAccountDto extends Account {}
 
 export class ToggleFavoriteAccountDto {
   @ApiProperty()

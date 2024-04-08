@@ -12,9 +12,11 @@ import * as uuid from 'uuid';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from '../../models/account/AccountSchema';
 import {
+  CreateAccountDto,
   CreateAccountPayload,
   GetAccountsOptions,
   isCreateAccountPayload,
+  UpdateAccountDto,
 } from './entities';
 import { User } from '../../models/user/UserSchema';
 import { DeleteResultDto, IPageableResponse } from '../../utils/common/types';
@@ -33,10 +35,7 @@ export class AccountService {
     @InjectModel(Account.name) private accountModel: Model<Account>,
   ) {}
 
-  async create(
-    userId: string,
-    payload: CreateAccountPayload,
-  ): Promise<Account> {
+  async create(userId: string, payload: CreateAccountDto): Promise<Account> {
     if (!isCreateAccountPayload(payload)) {
       throw new UnprocessableEntityException();
     }
@@ -51,6 +50,7 @@ export class AccountService {
       currentBalance: 0,
       user: user._id,
       transactions: [],
+      budget: payload.budget,
     });
 
     await account.save();
@@ -78,11 +78,15 @@ export class AccountService {
     };
   }
 
-  async updateAccount(id: string, payload: Partial<Account>): Promise<Account> {
+  async updateAccount(
+    id: string,
+    payload: Partial<UpdateAccountDto>,
+  ): Promise<Account> {
     const modifiableFields: (keyof Account)[] = [
       'name',
       'description',
       'isFavorite',
+      'budget',
     ];
 
     const account = await this.accountModel.findOne({ id: id });

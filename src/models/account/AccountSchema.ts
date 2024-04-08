@@ -32,6 +32,13 @@ export class Account extends Document {
   @Prop({ default: 0 })
   currentBalance: number;
 
+  @ApiProperty({
+    example: 1234.5,
+    description: 'Budget, set by user',
+  })
+  @Prop({ default: 0 })
+  budget: number;
+
   @ApiProperty({ example: false, description: 'Account favorite status' })
   @Prop({ default: false })
   isFavorite: boolean;
