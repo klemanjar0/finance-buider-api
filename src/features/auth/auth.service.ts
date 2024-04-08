@@ -37,6 +37,8 @@ export class AuthService {
       password: await makeHash(payload.password),
     });
 
+    console.log(user);
+
     await user.save();
 
     const obj = { sub: user.id, email: user.email };
@@ -49,7 +51,7 @@ export class AuthService {
   async signIn(payload: CreateUserPayload): Promise<SignInSuccessDto> {
     const user = await this.userModel.findOne({ email: payload.email });
 
-    const isPasswordMatch = await compareHash(user.password, payload.password);
+    const isPasswordMatch = await compareHash(payload.password, user.password);
 
     if (!isPasswordMatch) {
       throw new UnauthorizedException();
