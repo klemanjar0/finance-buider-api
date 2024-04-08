@@ -50,9 +50,15 @@ export class AuthService {
   async signIn(payload: CreateUserPayload): Promise<SignInSuccessDto> {
     const user = await this.userModel.findOne({ email: payload.email });
 
+    if (!user) {
+      throw new NotFoundException(
+        'oops. incorrect password or user was not found.',
+      );
+    }
+
     const isPasswordMatch = await compareHash(payload.password, user.password);
 
-    if (!user || !isPasswordMatch) {
+    if (!isPasswordMatch) {
       throw new NotFoundException(
         'oops. incorrect password or user was not found.',
       );
