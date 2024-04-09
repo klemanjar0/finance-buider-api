@@ -19,7 +19,11 @@ import {
   UpdateAccountDto,
 } from './entities';
 import { User } from '../../models/user/UserSchema';
-import { DeleteResultDto, IPageableResponse } from '../../utils/common/types';
+import {
+  DeleteResultDto,
+  IPageableDto,
+  IPageableResponse,
+} from '../../utils/common/types';
 import { buildPageable } from '../../utils/utility';
 import { CreateTransactionPayload } from '../transaction/entities';
 import {
@@ -27,6 +31,7 @@ import {
   TransactionModel,
 } from '../../models/transaction/TransactionSchema';
 import { DeleteResult } from 'mongodb';
+import { pipe, drop, take, orderBy, size } from 'lodash/fp';
 
 @Injectable()
 export class AccountService {
@@ -61,14 +66,14 @@ export class AccountService {
   async getAccounts(
     userId: string,
     options: GetAccountsOptions,
-  ): Promise<IPageableResponse<Account>> {
+  ): Promise<IPageableDto<Account>> {
     const { limit, offset } = options;
     const user = await this.userModel.findOne({ id: userId });
     const accountsCount = await this.accountModel
       .find({ user: user._id })
       .countDocuments();
     const accounts = await this.accountModel
-      .find({ user: user._id })
+      .find({ user: user._id }, { transactions: 0, user: 0 })
       .skip(offset)
       .limit(limit);
 
@@ -223,5 +228,25 @@ export class AccountService {
     await account.save();
 
     return result;
+  }
+
+  async getAccountTransactions(accountId: string, options: GetAccountsOptions) {
+    const { limit, offset } = options;
+    const account = await this.accountModel.findOne({ id: accountId });
+
+    const transactions = account.transactions;
+
+    const count = size(transactions);
+
+    const data = pipe(
+      drop(offset),
+      take(limit),
+      orderBy(['createdAt'], ['desc']),
+    )(transactions) as Transaction[];
+
+    return {
+      data,
+      pageable: buildPageable({ limit, offset, total: count }),
+    };
   }
 }

@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IPageable, PageableCountDto } from '../../utils/common/types';
 import { Account } from '../../models/account/AccountSchema';
 import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import { Transaction } from '../../models/transaction/TransactionSchema';
 
 export interface CreateAccountPayload {
   name: string;
@@ -59,6 +60,14 @@ export class GetAccountsDto implements IPageable {
   offset: number;
 }
 
+export class GetTransactionsDto implements IPageable {
+  @ApiProperty()
+  limit: number;
+
+  @ApiProperty()
+  offset: number;
+}
+
 export class ToggleFavoriteAccountDto {
   @ApiProperty()
   status: boolean;
@@ -67,6 +76,14 @@ export class ToggleFavoriteAccountDto {
 export class GetAccountsResponseDto {
   @ApiProperty({ description: 'Accounts array', type: () => [Account] })
   data: Account[];
+
+  @ApiProperty()
+  pageable: PageableCountDto;
+}
+
+export class GetTransactionsResponseDto {
+  @ApiProperty({ description: 'Transactions array', type: () => [Transaction] })
+  data: Transaction[];
 
   @ApiProperty()
   pageable: PageableCountDto;

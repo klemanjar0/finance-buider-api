@@ -23,6 +23,8 @@ import {
   DeleteTransactionDto,
   GetAccountsDto,
   GetAccountsResponseDto,
+  GetTransactionsDto,
+  GetTransactionsResponseDto,
   ToggleFavoriteAccountDto,
   UpdateAccountDto,
   WithUuidDto,
@@ -209,5 +211,25 @@ export class AccountController {
       params.id,
       params.transactionId,
     );
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':id/transactions')
+  @ApiQuery({ name: 'limit', type: String })
+  @ApiQuery({ name: 'offset', type: String })
+  @ApiOperation({
+    summary: 'Get accounts transactions.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns transactions list.',
+    type: GetTransactionsResponseDto,
+  })
+  getTransactions(
+    @Param() params: WithUuidDto,
+    @Query() payload: GetTransactionsDto,
+  ): Promise<GetTransactionsResponseDto> {
+    const pageable = extractPageable(payload);
+    return this.accountService.getAccountTransactions(params.id, pageable);
   }
 }
