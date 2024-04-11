@@ -1,4 +1,4 @@
-import { Model, Schema } from 'mongoose';
+import { Model, Schema, SortOrder } from 'mongoose';
 import {
   Injectable,
   UnauthorizedException,
@@ -12,8 +12,10 @@ import * as uuid from 'uuid';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from '../../models/account/AccountSchema';
 import {
+  accountKeys,
   CreateAccountDto,
   CreateAccountPayload,
+  GetAccountsDto,
   GetAccountsOptions,
   isCreateAccountPayload,
   UpdateAccountDto,
@@ -24,7 +26,7 @@ import {
   IPageableDto,
   IPageableResponse,
 } from '../../utils/common/types';
-import { buildPageable } from '../../utils/utility';
+import { buildPageable, buildSortForMongo } from '../../utils/utility';
 import { CreateTransactionPayload } from '../transaction/entities';
 import {
   Transaction,
@@ -65,15 +67,36 @@ export class AccountService {
 
   async getAccounts(
     userId: string,
-    options: GetAccountsOptions,
+    options: GetAccountsDto,
   ): Promise<IPageableDto<Account>> {
-    const { limit, offset } = options;
+    const { limit, offset, sort } = options;
     const user = await this.userModel.findOne({ id: userId });
     const accountsCount = await this.accountModel
       .find({ user: user._id })
       .countDocuments();
+    let sortOptions: [string, SortOrder][] = [];
+
+    try {
+      sortOptions = buildSortForMongo(sort ?? '', accountKeys);
+    } catch (e) {
+      if (e.message == '2006') {
+        throw new UnprocessableEntityException(
+          'Specified fieldName does not exist on entity Account',
+        );
+      }
+
+      if (e.message == '2008') {
+        throw new UnprocessableEntityException(
+          'Specified direction does not exist',
+        );
+      }
+
+      throw new UnprocessableEntityException('Sort query is not valid');
+    }
+
     const accounts = await this.accountModel
       .find({ user: user._id }, { transactions: 0, user: 0 })
+      .sort(sort ? sortOptions : null)
       .skip(offset)
       .limit(limit);
 

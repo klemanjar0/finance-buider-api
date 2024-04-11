@@ -35,6 +35,7 @@ import { extractPageable, getUserIdFromRequest } from '../../utils/utility';
 import { Transaction } from '../../models/transaction/TransactionSchema';
 import { CreateTransactionDto } from '../transaction/entities';
 import { DeleteResultDto } from '../../utils/common/types';
+import * as mongoose from 'mongoose';
 
 @ApiTags('Account')
 @Controller('accounts')
@@ -70,8 +71,9 @@ export class AccountController {
 
   @UseGuards(AuthGuard)
   @Get('')
-  @ApiQuery({ name: 'limit', type: String })
-  @ApiQuery({ name: 'offset', type: String })
+  @ApiQuery({ name: 'limit', type: mongoose.Schema.Types.Number })
+  @ApiQuery({ name: 'offset', type: mongoose.Schema.Types.Number })
+  @ApiQuery({ name: 'sort', type: mongoose.Schema.Types.String })
   @ApiOperation({
     summary: 'Get current user accounts.',
   })
@@ -86,7 +88,10 @@ export class AccountController {
   ): Promise<GetAccountsResponseDto> {
     const userId = getUserIdFromRequest(req);
     const pageable = extractPageable(payload);
-    return this.accountService.getAccounts(userId, pageable);
+    return this.accountService.getAccounts(userId, {
+      ...pageable,
+      sort: payload.sort,
+    });
   }
 
   @UseGuards(AuthGuard)

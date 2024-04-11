@@ -52,12 +52,15 @@ export class UpdateAccountDto {
   budget: string;
 }
 
-export class GetAccountsDto implements IPageable {
+export class GetAccountsDto {
   @ApiProperty()
   limit: number;
 
   @ApiProperty()
   offset: number;
+
+  @ApiProperty()
+  sort?: string;
 }
 
 export class GetTransactionsDto implements IPageable {
@@ -101,3 +104,11 @@ export const isCreateAccountPayload = (
 };
 
 export type GetAccountsOptions = IPageable;
+
+export const accountKeys: (keyof Account)[] = [
+  'name',
+  'description',
+  'isFavorite',
+  'budget',
+  'currentBalance',
+];
