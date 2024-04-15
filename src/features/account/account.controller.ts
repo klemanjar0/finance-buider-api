@@ -237,4 +237,18 @@ export class AccountController {
     const pageable = extractPageable(payload);
     return this.accountService.getAccountTransactions(params.id, pageable);
   }
+
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get account entity.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns account.',
+    type: Account,
+  })
+  getAccount(@Param() params: WithUuidDto): Promise<Account> {
+    return this.accountService.getAccount(params.id);
+  }
 }

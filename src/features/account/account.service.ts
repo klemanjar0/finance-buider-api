@@ -65,6 +65,11 @@ export class AccountService {
     return account.toJSON();
   }
 
+  async getAccount(id: string): Promise<Account> {
+    const account = await this.accountModel.findOne({ id: id }, { user: 0 });
+    return account.toJSON();
+  }
+
   async getAccounts(
     userId: string,
     options: GetAccountsDto,
