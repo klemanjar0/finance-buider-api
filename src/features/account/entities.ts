@@ -112,3 +112,21 @@ export const accountKeys: (keyof Account)[] = [
   'budget',
   'currentBalance',
 ];
+
+class SpentByTypeDto {
+  [key: string]: number;
+}
+
+export class GetGlobalInfoDto {
+  @ApiProperty()
+  totalBudget: number;
+
+  @ApiProperty()
+  totalSpent: number;
+
+  @ApiProperty()
+  totalSpentThisMonth: number;
+
+  @ApiProperty({ type: () => SpentByTypeDto })
+  spentByType: SpentByTypeDto;
+}

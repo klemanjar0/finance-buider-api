@@ -23,6 +23,7 @@ import {
   DeleteTransactionDto,
   GetAccountsDto,
   GetAccountsResponseDto,
+  GetGlobalInfoDto,
   GetTransactionsDto,
   GetTransactionsResponseDto,
   ToggleFavoriteAccountDto,
@@ -250,5 +251,18 @@ export class AccountController {
   })
   getAccount(@Param() params: WithUuidDto): Promise<Account> {
     return this.accountService.getAccount(params.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('summary')
+  @ApiOperation({
+    summary: 'Get summary entity.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns user summary.',
+  })
+  getSummary(@Request() req: Request): Promise<GetGlobalInfoDto> {
+    return this.accountService.getGlobalInfo(getUserIdFromRequest(req));
   }
 }

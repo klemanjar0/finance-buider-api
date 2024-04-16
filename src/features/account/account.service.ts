@@ -17,6 +17,7 @@ import {
   CreateAccountPayload,
   GetAccountsDto,
   GetAccountsOptions,
+  GetGlobalInfoDto,
   isCreateAccountPayload,
   UpdateAccountDto,
 } from './entities';
@@ -277,5 +278,42 @@ export class AccountService {
       data,
       pageable: buildPageable({ limit, offset, total: count }),
     };
+  }
+
+  async getGlobalInfo(userId: string): Promise<GetGlobalInfoDto> {
+    const user = await this.userModel.findOne({ id: userId });
+    const accounts = await this.accountModel.find({ user: user._id });
+    const todayMonth = moment(new Date()).month();
+    const spentByType = {};
+    const totalSpent = accounts.reduce(
+      (acc1, account) =>
+        acc1 +
+        account.transactions.reduce(
+          (acc2, transaction) => acc2 + transaction.value,
+          0,
+        ),
+      0,
+    );
+
+    let totalSpentThisMonth = 0;
+
+    for (const account of accounts) {
+      for (const transaction of account.transactions) {
+        if (transaction.createdAt.getMonth() === todayMonth) {
+          totalSpentThisMonth = totalSpentThisMonth + transaction.value;
+        }
+      }
+    }
+
+    for (const account of accounts) {
+      for (const transaction of account.transactions) {
+        const key = transaction.type ? transaction.type : 'untyped';
+        spentByType[key] = (spentByType[key] ?? 0) + transaction.value;
+      }
+    }
+
+    const totalBudget = accounts.reduce((acc, next) => acc + next.budget, 0);
+
+    return { totalBudget, totalSpent, totalSpentThisMonth, spentByType };
   }
 }
