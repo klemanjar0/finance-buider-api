@@ -269,7 +269,7 @@ export class AccountService {
     const data = pipe(
       drop(offset),
       take(limit),
-      orderBy(['createdAt'], ['desc']),
+      orderBy(['createdAt'], ['asc']),
     )(transactions) as Transaction[];
 
     return {
