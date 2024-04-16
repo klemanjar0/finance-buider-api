@@ -261,6 +261,7 @@ export class AccountController {
   @ApiResponse({
     status: 200,
     description: 'Returns user summary.',
+    type: GetGlobalInfoDto,
   })
   getSummary(@Request() req: Request): Promise<GetGlobalInfoDto> {
     return this.accountService.getGlobalInfo(getUserIdFromRequest(req));
