@@ -34,6 +34,7 @@ import {
 } from '../../models/transaction/TransactionSchema';
 import { DeleteResult } from 'mongodb';
 import { pipe, drop, take, orderBy, size } from 'lodash/fp';
+import * as moment from 'moment';
 
 @Injectable()
 export class AccountService {
@@ -269,7 +270,7 @@ export class AccountService {
     const data = pipe(
       drop(offset),
       take(limit),
-      orderBy([(it: Transaction) => new Date(it.createdAt)], ['asc']),
+      orderBy([(it: Transaction) => it.createdAt.toISOString()], ['desc']),
     )(transactions) as Transaction[];
 
     return {
